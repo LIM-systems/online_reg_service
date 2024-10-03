@@ -19,8 +19,8 @@ class Categories(models.Model):
 class Service(models.Model):
     '''Услуги'''
     name = models.CharField(max_length=255, verbose_name='Название услуги')
-    categories = models.ManyToManyField(
-        Categories, verbose_name='Категории', null=True, blank=True)
+    services_categories = models.ManyToManyField(
+        Categories, verbose_name='Категории', blank=True)
     duration = models.IntegerField(
         verbose_name='Длительность выполнения (минут)')
     description = models.TextField(verbose_name='Описание', blank=True)

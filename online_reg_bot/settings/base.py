@@ -13,9 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -35,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'base_process.apps.BaseProcessConfig',
+    'add_funcs.apps.AddFuncsConfig'
 ]
 
 MIDDLEWARE = [
@@ -110,6 +113,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Static files (CSS, JavaScript, Images)
@@ -124,16 +129,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 JAZZMIN_SETTINGS = {
+    "order_with_respect_to": [
+        "base_process",
+        "base_process.VisitJournal",
+        "base_process.Client",
+        "base_process.ClientActivity",
+        "base_process.Master",
+        "base_process.MasterSchedule",
+        "base_process.Categories",
+        "base_process.Service",
+        "base_process.AboutCompany",
+        "add_funcs",
+        "add_funcs.LoyaltyProgram",
+        "add_funcs.Promotion",
+        "add_funcs.Certificate",
+        "add_funcs.Abonement",
+        "add_funcs.AbonementsJournal",
+        "add_funcs.CertificatesJournal",
+        "add_funcs.ChatWithAdmin",],
 
-    # 'order_with_respect_to': [
-    #     'inwork.client',
-    #     'inwork.master',
-    #     'inwork.masterschedule',
-    #     'inwork.visitjournal',
-    #     'inwork.service',
-    #     'inwork.categories',
-    #     'inwork.broadcast',
-    # ],
+
 
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     'site_title': 'Название компании админка',

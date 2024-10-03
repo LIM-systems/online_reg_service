@@ -1,4 +1,5 @@
 from django.db import models
+from add_funcs.models import Promotion
 from base_process.models.users import *
 from base_process.models.services import *
 from utils.models import END_WORK_TIME_DEFAULT, START_WORK_TIME_DEFAULT
@@ -27,13 +28,13 @@ class VisitJournal(models.Model):
     MATH_ACTIONS = (('plus', 'Прибавление'), ('minus', 'Вычитание'))
 
     visit_client = models.ForeignKey(
-        Client, on_delete=models.SET_NULL, verbose_name='Клиент')
+        Client, on_delete=models.CASCADE, verbose_name='Клиент',)
     visit_master = models.ForeignKey(
-        Master, on_delete=models.SET_NULL, verbose_name='Мастер')
+        Master, on_delete=models.CASCADE, verbose_name='Мастер')
     create_date = models.DateTimeField(verbose_name='Дата создания записи')
     visit_date = models.DateTimeField(verbose_name='Дата посещения')
     visit_service = models.ForeignKey(
-        Service, on_delete=models.SET_NULL, verbose_name='Услуга')
+        Service, on_delete=models.CASCADE, verbose_name='Услуга')
     confirmation = models.DateTimeField(
         verbose_name='Подтверждение', blank=True, null=True)
     cancel = models.BooleanField(default=False, verbose_name='Услуга отменена')
@@ -44,6 +45,8 @@ class VisitJournal(models.Model):
         verbose_name='Комментарий', blank=True, null=True)
     note = models.TextField(
         verbose_name='Заметка', blank=True, null=True)
+    promotion_discount = models.ManyToManyField(
+        Promotion, verbose_name='Акция',)
     math_action = models.CharField(
         max_length=255, verbose_name='Действие',
         choices=MATH_ACTIONS, default='plus')

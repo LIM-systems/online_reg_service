@@ -1,5 +1,5 @@
 from django.db import models
-from utils.models import email_regex, phone_regex
+from utils.models import phone_regex
 
 
 class Person(models.Model):
@@ -19,23 +19,17 @@ class Client(models.Model):
     name = models.CharField(
         max_length=255, verbose_name='Имя',
         help_text='Введите имя клиента')
-    email = models.CharField(
-        validators=[email_regex],
-        max_length=254, verbose_name='Email', help_text='укажите email')
+    email = models.EmailField(
+        max_length=254, verbose_name='Email',
+        help_text='укажите email')
     phone = models.CharField(
         validators=[phone_regex],
         max_length=12, verbose_name='Телефон',
         default='+7', help_text='Введите телефон в формате +79001112233')
     tg_id = models.BigIntegerField(
         verbose_name='Телеграм ID', null=True, blank=True)
-    last_visit_bot = models.DateTimeField(
-        verbose_name='Последнее посещение бота', blank=True, null=True)
-    last_visit_web = models.DateTimeField(
-        verbose_name='Последнее посещение web', blank=True, null=True)
     comment = models.TextField(
         verbose_name='Комментарий', null=True, blank=True)
-    is_blocked = models.BooleanField(
-        verbose_name='Бот заблокирован', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Клиент'
@@ -43,6 +37,25 @@ class Client(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.phone}'
+
+
+class ClientActivity(models.Model):
+    '''Активность клиентов'''
+    name = models.ForeignKey(
+        to=Client, on_delete=models.CASCADE, verbose_name='Имя')
+    last_visit_bot = models.DateTimeField(
+        verbose_name='Последнее посещение бота', blank=True, null=True)
+    last_visit_web = models.DateTimeField(
+        verbose_name='Последнее посещение web', blank=True, null=True)
+    is_blocked = models.BooleanField(
+        verbose_name='Бот заблокирован', null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Активность клиента'
+        verbose_name_plural = 'Активность клиентов'
+
+    def __str__(self):
+        return f'{self.name.name}'
 
 
 class Master(models.Model):

@@ -21,3 +21,10 @@ class AboutCompany(models.Model):
         validators=[phone_regex],
         max_length=12, verbose_name='Телефон',
         default='+7', help_text='Введите телефон в формате +79001112233')
+
+    class Meta:
+        verbose_name = 'О компании'
+        verbose_name_plural = 'О компании'
+
+    def __str__(self):
+        return self.name

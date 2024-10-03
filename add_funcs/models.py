@@ -1,8 +1,22 @@
 from django.db import models
-from base_process.models.users import *
+from django.core.exceptions import ValidationError
 
 
 # Программа лояльности
+
+class LoyaltyProgram(models.Model):
+    auto_toggle = models.BooleanField(verbose_name='Автоматический режим', default=True,
+                                      help_text="Автоматически подключать программу лояльности клиентам при наличии акций, абонементов и сертификатов")
+    toggle = models.BooleanField(verbose_name='Включена', default=False,
+                                 help_text='Включить/выключить программу лояльности для отображения у клиентов')
+
+    class Meta:
+        verbose_name = 'Программа лояльности (вкл/выкл)'
+        verbose_name_plural = 'Программа лояльности (вкл/выкл)'
+
+    def __str__(self):
+        return 'Программа лояльности'
+
 
 class PromotionBase(models.Model):
     '''Базовая модель всех акций'''
@@ -16,8 +30,10 @@ class PromotionBase(models.Model):
         abstract = True
 
 
-class PromotionHasDates(PromotionBase):
+class PromotionHasDates(models.Model):
     '''С датами'''
+    discount = models.IntegerField(
+        verbose_name='Скидка (%)', help_text='Введите процент скидки')
     date_start = models.DateTimeField(
         verbose_name='Дата начала', null=True, blank=True)
     date_end = models.DateTimeField(
@@ -27,7 +43,7 @@ class PromotionHasDates(PromotionBase):
         abstract = True
 
 
-class PromotionHasPeriod(PromotionBase):
+class PromotionHasPeriod(models.Model):
     '''С периодом'''
     period = models.IntegerField(
         verbose_name='Период (дни)', help_text='Введите количество дней', null=True, blank=True)
@@ -69,10 +85,10 @@ class Abonement(PromotionBase, PromotionHasPeriod):
         return self.name
 
 
-class PromotionJournal(models.Model):
+class AbonementsJournal(models.Model):
     '''Журнал покупок абонементов'''
-    client = models.ForeignKey(
-        Client, verbose_name='Клиент', on_delete=models.CASCADE)
+    client_name = models.ForeignKey(
+        'base_process.Client', verbose_name='Клиент', on_delete=models.CASCADE)
     purchased_abonement = models.ForeignKey(
         Abonement, verbose_name='Акция', on_delete=models.CASCADE)
     date_time = models.DateTimeField(
@@ -83,7 +99,24 @@ class PromotionJournal(models.Model):
         verbose_name_plural = 'Журнал покупок абонементов'
 
     def __str__(self):
-        return f'{self.client} - {self.purchased_abonement}'
+        return f'{self.client_name} - {self.purchased_abonement}'
+
+
+class CertificatesJournal(models.Model):
+    '''Журнал покупок сертификатов'''
+    client_name = models.ForeignKey(
+        'base_process.Client', verbose_name='Клиент', on_delete=models.CASCADE)
+    purchased_certificate = models.ForeignKey(
+        Certificate, verbose_name='Сертификат', on_delete=models.CASCADE)
+    date_time = models.DateTimeField(
+        verbose_name='Дата покупки', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Журнал покупок сертификатов'
+        verbose_name_plural = 'Журнал покупок сертификатов'
+
+    def __str__(self):
+        return f'{self.client_name} - {self.purchased_certificate}'
 
 
 # Чат с админом
@@ -92,8 +125,14 @@ class ChatWithAdmin(models.Model):
     is_active = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'Чат с админом'
-        verbose_name_plural = 'Чат с админом'
+        verbose_name = 'Чат с админом (вкл/выкл)'
+        verbose_name_plural = 'Чат с админом (вкл/выкл)'
 
     def __str__(self):
-        return f'Чат с админом'
+        return 'Чат с админом'
+
+    def save(self, *args, **kwargs):
+        if not self.pk and ChatWithAdmin.objects.exists():
+            raise ValidationError(
+                'Только одна запись ChatWithAdmin может существовать.')
+        super().save(*args, **kwargs)
