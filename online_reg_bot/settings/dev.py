@@ -1,6 +1,6 @@
 from .base import *
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '45.8.99.97:9999']
 
 # Настройки базы данных для разработки (если требуется)
 DATABASES = {
