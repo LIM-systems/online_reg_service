@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from base_process.models.about_company import AboutCompany
 from base_process.models.schedule import MasterSchedule, VisitJournal
 from base_process.models.services import Categories, Service
-from base_process.models.users import Client, ClientActivity, Master
+from base_process.models.users import Admin, Client, ClientActivity, Master
 
 
 # клиенты
@@ -16,6 +16,7 @@ class ClientAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'tg_id', 'comment',)
     list_filter = ('name', 'email')
     search_fields = ('phone', 'tg_id', 'comment',)
+    readonly_fields = ('tg_id',)
 
 
 # журнал активности клиентов
@@ -24,14 +25,33 @@ class ClientActivityAdmin(admin.ModelAdmin):
     list_display = ('name', 'last_visit_bot', 'last_visit_web', 'is_blocked',)
     list_filter = ('name', 'is_blocked',)
     search_fields = ('name',)
+    readonly_fields = ('name', 'last_visit_bot',
+                       'last_visit_web', 'is_blocked',)
 
 
 # мастера
 @admin.register(Master)
 class MasterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rate', 'photo')
+    list_display = ('name', 'rate', 'preview_photo_mini')
     list_filter = ('rate',)
     search_fields = ('name',)
+    readonly_fields = ('rate', 'preview_photo')
+
+    @admin.display(description='Превью')
+    def preview_photo(self, obj):
+        '''Превью фото мастера в админке'''
+        if obj.photo:
+            return mark_safe(
+                f'<img src="{obj.photo.url}" style="max-height: 300px;">')
+        return '-'
+
+    @admin.display(description='Превью')
+    def preview_photo_mini(self, obj):
+        '''Превью фото мастера в админке'''
+        if obj.photo:
+            return mark_safe(
+                f'<img src="{obj.photo.url}" style="max-width: 100px;">')
+        return '-'
 
 
 # категории услуг
@@ -44,8 +64,25 @@ class CategoriesAdmin(admin.ModelAdmin):
 # услуги
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'duration', 'image', 'price')
+    list_display = ('name', 'duration', 'preview_image_mini', 'price')
     list_filter = ('name', 'duration', 'price')
+    readonly_fields = ('preview_image',)
+
+    @admin.display(description='Превью')
+    def preview_image(self, obj):
+        '''Превью иконка услуги в админке'''
+        if obj.image:
+            return mark_safe(
+                f'<img src="{obj.image.url}" style="max-height: 300px;">')
+        return "-"
+
+    @admin.display(description='Превью')
+    def preview_image_mini(self, obj):
+        '''Превью иконка услуги в админке'''
+        if obj.image:
+            return mark_safe(
+                f'<img src="{obj.image.url}" style="max-width: 100px;">')
+        return "-"
 
 
 # график мастеров
@@ -64,6 +101,7 @@ class VisitJournalAdmin(admin.ModelAdmin):
     list_filter = ('visit_client', 'visit_master', 'visit_date', 'create_date',
                    'visit_service', 'confirmation',
                    'cancel', 'finish', 'rate', 'comment', 'note',)
+    readonly_fields = ('create_date',)
 
 
 # о компании
@@ -81,26 +119,41 @@ class AboutCompanyAdmin(admin.ModelAdmin):
         """Запрещает удаление записей."""
         return False
 
-    @admin.display(description='Превью')
+    @admin.display(description='Превью лого')
     def preview_logo(self, obj):
         '''Превью фото лого в админке'''
-        return mark_safe(
-            f'<img src="{obj.logo.url}" style="max-height: 300px;">')
+        if obj.logo:
+            return mark_safe(
+                f'<img src="{obj.logo.url}" style="max-height: 300px;">')
+        return '-'
 
-    @admin.display(description='Превью')
+    @admin.display(description='Превью лого')
     def preview_logo_mini(self, obj):
         '''Превью фото лого в админке'''
-        return mark_safe(
-            f'<img src="{obj.logo.url}" style="max-width: 100px;">')
+        if obj.logo:
+            return mark_safe(
+                f'<img src="{obj.logo.url}" style="max-width: 100px;">')
+        return '-'
 
-    @admin.display(description='Превью')
+    @admin.display(description='Превью фото копании')
     def preview_image(self, obj):
         '''Превью фото компании в админке'''
-        return mark_safe(
-            f'<img src="{obj.image.url}" style="max-height: 300px;">')
+        if obj.image:
+            return mark_safe(
+                f'<img src="{obj.image.url}" style="max-height: 300px;">')
+        return '-'
 
-    @admin.display(description='Превью')
+    @admin.display(description='Превью фото компании')
     def preview_image_mini(self, obj):
         '''Превью фото компании в админке'''
-        return mark_safe(
-            f'<img src="{obj.image.url}" style="max-width: 100px;">')
+        if obj.image:
+            return mark_safe(
+                f'<img src="{obj.image.url}" style="max-width: 100px;">')
+        return '-'
+
+
+# администраторы
+@admin.register(Admin)
+class AdminAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    list_filter = ('name',)

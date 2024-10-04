@@ -77,3 +77,16 @@ class Master(models.Model):
 
     def __str__(self):
         return self.name.name
+
+
+class Admin(models.Model):
+    '''Администраторы'''
+    name = models.ForeignKey(
+        Client, on_delete=models.CASCADE, verbose_name='Назначить администратора')
+
+    class Meta:
+        verbose_name = 'Администратор'
+        verbose_name_plural = 'Администраторы'
+
+    def __str__(self):
+        return self.name.name

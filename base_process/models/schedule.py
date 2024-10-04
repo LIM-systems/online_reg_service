@@ -31,7 +31,8 @@ class VisitJournal(models.Model):
         Client, on_delete=models.CASCADE, verbose_name='Клиент',)
     visit_master = models.ForeignKey(
         Master, on_delete=models.CASCADE, verbose_name='Мастер')
-    create_date = models.DateTimeField(verbose_name='Дата создания записи')
+    create_date = models.DateTimeField(
+        verbose_name='Дата создания записи', auto_now_add=True)
     visit_date = models.DateTimeField(verbose_name='Дата посещения')
     visit_service = models.ForeignKey(
         Service, on_delete=models.CASCADE, verbose_name='Услуга')
@@ -46,7 +47,7 @@ class VisitJournal(models.Model):
     note = models.TextField(
         verbose_name='Заметка', blank=True, null=True)
     promotion_discount = models.ManyToManyField(
-        Promotion, verbose_name='Акция',)
+        Promotion, verbose_name='Акция', blank=True)
     math_action = models.CharField(
         max_length=255, verbose_name='Действие',
         choices=MATH_ACTIONS, default='plus')

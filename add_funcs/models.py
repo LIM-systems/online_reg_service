@@ -90,7 +90,7 @@ class AbonementsJournal(models.Model):
     client_name = models.ForeignKey(
         'base_process.Client', verbose_name='Клиент', on_delete=models.CASCADE)
     purchased_abonement = models.ForeignKey(
-        Abonement, verbose_name='Акция', on_delete=models.CASCADE)
+        Abonement, verbose_name='Абонемент', on_delete=models.CASCADE)
     date_time = models.DateTimeField(
         verbose_name='Дата покупки', auto_now_add=True)
 

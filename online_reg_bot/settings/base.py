@@ -139,6 +139,7 @@ JAZZMIN_SETTINGS = {
         "base_process.Categories",
         "base_process.Service",
         "base_process.AboutCompany",
+        "base_process.Admin",
         "add_funcs",
         "add_funcs.LoyaltyProgram",
         "add_funcs.Promotion",

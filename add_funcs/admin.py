@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from add_funcs.models import Abonement, AbonementsJournal, Certificate, CertificatesJournal, ChatWithAdmin, LoyaltyProgram, Promotion
+from add_funcs.models import (Abonement, AbonementsJournal, Certificate,
+                              CertificatesJournal, ChatWithAdmin,
+                              LoyaltyProgram, Promotion)
 
 
 # акции
@@ -36,6 +38,7 @@ class AbonementsJournalAdmin(admin.ModelAdmin):
     list_display = ('client_name', 'purchased_abonement', 'date_time',)
     list_filter = ('purchased_abonement', 'date_time')
     search_fields = ('client_name', 'purchased_abonement')
+    readonly_fields = ('date_time',)
     list_per_page = 50
 
 
@@ -45,6 +48,7 @@ class CertificatesJournalAdmin(admin.ModelAdmin):
     list_display = ('client_name', 'purchased_certificate', 'date_time',)
     list_filter = ('purchased_certificate', 'date_time')
     search_fields = ('client_name', 'purchased_certificate')
+    readonly_fields = ('date_time',)
     list_per_page = 50
 
 

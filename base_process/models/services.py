@@ -1,6 +1,8 @@
 from django.db import models
 from PIL import Image
 
+from utils.models import validate_image_or_svg
+
 
 class Categories(models.Model):
     '''Категории услуг'''
@@ -24,25 +26,9 @@ class Service(models.Model):
     duration = models.IntegerField(
         verbose_name='Длительность выполнения (минут)')
     description = models.TextField(verbose_name='Описание', blank=True)
-    image = models.ImageField(upload_to='services/', verbose_name='Картинка услуги',
-                              null=True, blank=True)
+    image = models.FileField(upload_to='services/', verbose_name='Картинка услуги',
+                             null=True, blank=True, validators=[validate_image_or_svg])
     price = models.IntegerField(verbose_name='Цена(рублей)')
-
-    def save(self, *args, **kwargs):
-        '''Редактирование размеров картинки при необходимости'''
-        super().save(*args, **kwargs)
-
-        if self.image:
-            max_width = 512
-            max_height = 512
-            img = Image.open(self.image.path)
-
-            # Проверка размеров и изменение, если необходимо
-            if img.width > max_width or img.height > max_height:
-                new_size = (min(img.width, max_width),
-                            min(img.height, max_height))
-                img.thumbnail(new_size)
-                img.save(self.image.path)
 
     class Meta:
         verbose_name = 'Услуга'
