@@ -1,12 +1,19 @@
-from aiogram import executor
+import asyncio
+
+import bot.handlers
 from django.core.management.base import BaseCommand
 
-from bot import handlers
-from bot.loader import dp
+from bot.loader import bot, dp
 
 
 class Command(BaseCommand):
-    help = 'Запись онлайн'
+    help = 'Запуск бота'
+
+    async def start_bot(self):
+        try:
+            await dp.start_polling(bot)
+        finally:
+            await bot.session.close()
 
     def handle(self, *args, **options):
-        executor.start_polling(dp, skip_updates=False)
+        asyncio.run(self.start_bot())
