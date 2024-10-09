@@ -23,7 +23,12 @@ async def send_verification_email(user_email):
     server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
 
     # Отправляем письмо
-    server.sendmail(settings.DEFAULT_FROM_EMAIL, user_email, msg.as_string())
+    try:
+        server.sendmail(settings.DEFAULT_FROM_EMAIL,
+                        user_email, msg.as_string())
+    except Exception as e:
+        print(f'Ошибка при отправке письма: {e}')
+        return None
 
     server.quit()
     print(verification_code)
