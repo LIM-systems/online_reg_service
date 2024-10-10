@@ -1,13 +1,13 @@
 import asyncio
 
 from aiogram import BaseMiddleware, types
-
-from bot.db_reqs.common import check_promo_on_off, check_roles
-from bot.utils.keyboards import client
-import bot.handlers
 from django.core.management.base import BaseCommand
 
+import bot.handlers
+from bot.db_reqs.common import check_promo_on_off, check_roles
 from bot.loader import bot, dp, router
+from bot.utils.keyboards.client import (client_cancel_name_button, client_main_menu_buttons,
+                                        entries_client_buttons, loyality_programm_buttons, my_profile_buttons)
 
 
 class Command(BaseCommand):
@@ -53,15 +53,16 @@ class Command(BaseCommand):
                         print(f"Role check failed for user {tg_id}: {e}")
 
                 action = None
-                if event and event.text:
+                if isinstance(event, types.Message) and event.text:
                     action = event.text
-                elif event.callback_query and event.callback_query.data:
-                    action = event.callback_query.data
+                elif isinstance(event, types.CallbackQuery) and event.data:
+                    action = event.data
 
                 # Define which buttons require which roles
-                client_buttons = (client.about_us_button, client.chat_with_manager_button,
-                                  client.my_profile_button, client.promo_button, client.sign_up_on_service_button)
-                master_buttons = ('1', '2')
+                client_buttons = (*client_main_menu_buttons,
+                                  *my_profile_buttons, client_cancel_name_button,
+                                  *entries_client_buttons, *loyality_programm_buttons)
+                master_buttons = ('fdsafas', 'dsafsadf')
 
                 if action:
                     if action in client_buttons and not data['client']:

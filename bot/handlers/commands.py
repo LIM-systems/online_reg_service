@@ -9,8 +9,8 @@ from bot.loader import router
 from bot.utils.keyboards.client import get_client_main_menu, start_menu_text, promo_menu_text
 from bot.utils.keyboards.sign_up import (get_name_keyboard, get_phone_keyboard,
                                          sign_up_button, sign_in_button, start_keyboard)
-from bot.utils.StateSignUp import SignUp
-from utils.other import email_pattern, send_verification_email
+from bot.utils.states.StateSignUp import SignUp
+from utils.other import email_pattern, phone_pattern, send_verification_email
 
 
 # вход и регистрация
@@ -53,7 +53,7 @@ async def name_handler(msg: types.Message, state: FSMContext):
     '''Обработчик ввода имени'''
     name = msg.text
     await state.update_data(name=name)
-    await msg.answer('Введите номер телефона (11 цифр) без пробелов и дополнительных символов, по образцу:89998889988',
+    await msg.answer('Введите номер телефона (11 цифр) без пробелов и дополнительных символов в формате: 89998889988',
                      reply_markup=get_phone_keyboard())
     await state.set_state(SignUp.phone)
 
@@ -62,7 +62,7 @@ async def name_handler(msg: types.Message, state: FSMContext):
 async def phone_handler(msg: types.Message, state: FSMContext):
     '''Обработчик ввода телефона'''
     phone = msg.contact.phone_number if msg.contact else msg.text
-    if re.match(r'^\+7\d{10}$', phone):
+    if re.match(phone_pattern, phone):
         await state.update_data(phone=phone)
         await msg.answer('Введите Ваш email', reply_markup=types.ReplyKeyboardRemove())
         await state.set_state(SignUp.email)

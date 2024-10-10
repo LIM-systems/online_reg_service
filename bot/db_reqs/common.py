@@ -58,9 +58,10 @@ def check_promo_on_off():
     # если включен автоматический режим и заполнены таблицы
     # акций, сертификатов, абонементов - и/или
     if loyalty_program.auto_toggle:
-        promos = add_models.Promotion.objects.all()
-        certificates = add_models.Certificate.objects.all()
-        abonements = add_models.Abonement.objects.all()
+        promos = add_models.Promotion.objects.filter(is_active=True).all()
+        certificates = add_models.Certificate.objects.filter(
+            is_active=True).all()
+        abonements = add_models.Abonement.objects.filter(is_active=True).all()
 
         if promos or certificates or abonements:
             loyalty_program.toggle = True  # активируем промо для клиентов
