@@ -38,8 +38,8 @@ def sign_up(tg_id, name, phone, email):
         name=new_client, last_visit_bot=datetime.now())
 
     # для демо
-    base_mdls.Master.objects.create(name=new_client)
-    base_mdls.Admin.objects.create(name=new_client)
+    # base_mdls.Master.objects.create(name=new_client)
+    # base_mdls.Admin.objects.create(name=new_client)
 
 
 @sync_to_async
