@@ -146,3 +146,19 @@ def loyality_programm_keyboard(loyality_programms):
             text='Абонементы', callback_data=loyality_programm_buttons[2])])
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=kb)
     return keyboard
+
+
+# кнопки отправки сообщения менеджеру
+send_message_to_manager_buttons = ('send_message_to_manager_button',
+                                   'cancel_send_message_to_manager_button')
+
+
+def send_message_to_manager_keyboard():
+    '''Клавиатура отправки сообщения менеджеру'''
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(
+            text='Отправить сообщение', callback_data=send_message_to_manager_buttons[0])],
+        [types.InlineKeyboardButton(
+            text='Отмена', callback_data=send_message_to_manager_buttons[1])],
+    ])
+    return keyboard

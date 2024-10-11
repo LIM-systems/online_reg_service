@@ -8,24 +8,17 @@ from aiogram.types.input_file import FSInputFile
 
 from bot.db_reqs import client as db_client
 from bot.loader import router
-from bot.utils.keyboards.client import (cancel_client_keyboard,
-                                        change_client_name_keyboard,
-                                        client_cancel_name_button,
-                                        client_main_menu_buttons,
-                                        client_text_my_profile,
-                                        entries_client_buttons,
-                                        loyality_programm_buttons,
-                                        loyality_programm_keyboard,
-                                        my_profile_buttons,
-                                        my_profile_keyboard,
-                                        select_entries_keyboard,
-                                        use_telegram_name_button)
-from bot.utils.states.StateClientProfile import ClientProfile, ListOfLoayalityProgramm
+from bot.utils.keyboards.client import (cancel_client_keyboard, change_client_name_keyboard,
+                                        client_cancel_name_button, client_main_menu_buttons, client_text_my_profile,
+                                        entries_client_buttons, loyality_programm_buttons, loyality_programm_keyboard,
+                                        my_profile_buttons, my_profile_keyboard, select_entries_keyboard,
+                                        send_message_to_manager_buttons, send_message_to_manager_keyboard, use_telegram_name_button)
+from bot.utils.states.StateClientProfile import ChatWithManager, ClientProfile, ListOfLoayalityProgramm
 from online_reg_bot.settings.base import BASE_DIR
 from utils.other import email_pattern, phone_pattern, send_verification_email
 
 
-# О нас
+### О нас ###
 @router.message(F.text == client_main_menu_buttons[0])
 async def about_us(msg: types.Message, state: FSMContext):
     '''Кнопка "О нас"'''
@@ -298,3 +291,29 @@ async def loaylity_promos_handler(msg: types.Message, state: FSMContext):
         await state.clear()
     else:
         await msg.answer('Вы ввели неверный номер')
+
+
+### О нас ###
+@router.message(F.text == client_main_menu_buttons[1])
+async def chat_with_manager(msg: types.Message, state: FSMContext):
+    '''Чат с менеджером"'''
+    await state.clear()
+    await msg.answer('Напишите сообщение')
+    await state.set_state(ChatWithManager.chat_with_manager)
+
+
+@router.message(StateFilter(ChatWithManager.chat_with_manager))
+async def get_message(msg: types.Message, state: FSMContext):
+    '''Отправка сообщения боту'''
+    await msg.answer('Отправить сообщение?', reply_markup=send_message_to_manager_keyboard())
+    await state.clear()
+
+
+@router.callback_query(lambda call: call.data in send_message_to_manager_buttons)
+async def send_message_to_manager(call: types.CallbackQuery, state: FSMContext):
+    '''Отправка сообщения менеджеру или отмена'''
+    await call.message.delete()
+    if call.data == send_message_to_manager_buttons[0]:
+        await call.message.answer('Сообщение отправлено')
+    else:
+        await call.message.answer('Отправка отменена')

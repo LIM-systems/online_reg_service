@@ -7,7 +7,8 @@ import bot.handlers
 from bot.db_reqs.common import check_promo_on_off, check_roles
 from bot.loader import bot, dp, router
 from bot.utils.keyboards.client import (client_cancel_name_button, client_main_menu_buttons,
-                                        entries_client_buttons, loyality_programm_buttons, my_profile_buttons)
+                                        entries_client_buttons, loyality_programm_buttons, my_profile_buttons,
+                                        send_message_to_manager_buttons)
 
 
 class Command(BaseCommand):
@@ -61,7 +62,8 @@ class Command(BaseCommand):
                 # Define which buttons require which roles
                 client_buttons = (*client_main_menu_buttons,
                                   *my_profile_buttons, client_cancel_name_button,
-                                  *entries_client_buttons, *loyality_programm_buttons)
+                                  *entries_client_buttons, *loyality_programm_buttons,
+                                  *send_message_to_manager_buttons,)
                 master_buttons = ('fdsafas', 'dsafsadf')
 
                 if action:

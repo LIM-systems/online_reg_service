@@ -11,3 +11,7 @@ class ClientProfile(StatesGroup):
 class ListOfLoayalityProgramm(StatesGroup):
     name = State()
     loaylity_promos_list = State()
+
+
+class ChatWithManager(StatesGroup):
+    chat_with_manager = State()
