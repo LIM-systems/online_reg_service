@@ -13,6 +13,10 @@ def start_keyboard():
     return keyboard
 
 
+# кнопки назад
+back_button = 'Назад'
+
+
 def get_name_keyboard(name):
     '''Кнопка получить имя пользователя из данных телеграма'''
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
@@ -24,5 +28,13 @@ def get_phone_keyboard():
     '''Кнопка получить номер телефона из данных телеграма'''
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
                                          keyboard=[[types.KeyboardButton(text='Отправить номер телефона',
-                                                                         request_contact=True)]])
+                                                                         request_contact=True)],
+                                                   [types.KeyboardButton(text='Назад')]])
+    return keyboard
+
+
+def get_email_keyboard():
+    '''Кнопка получить email из данных телеграма'''
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,
+                                         keyboard=[[types.KeyboardButton(text='Назад')]])
     return keyboard

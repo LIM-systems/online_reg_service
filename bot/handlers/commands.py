@@ -7,8 +7,8 @@ from aiogram.fsm.context import FSMContext
 from bot.db_reqs import common as db_common
 from bot.loader import router
 from bot.utils.keyboards.client import get_client_main_menu, start_menu_text, promo_menu_text
-from bot.utils.keyboards.sign_up import (get_name_keyboard, get_phone_keyboard,
-                                         sign_up_button, sign_in_button, start_keyboard)
+from bot.utils.keyboards.sign_up import (back_button, get_email_keyboard, get_name_keyboard,
+                                         get_phone_keyboard, sign_in_button, sign_up_button, start_keyboard)
 from bot.utils.states.StateSignUp import SignUp
 from utils.other import email_pattern, phone_pattern, send_verification_email
 
@@ -48,7 +48,7 @@ async def sign_up_button_handler(msg: types.Message, state: FSMContext):
     await state.set_state(SignUp.name)
 
 
-@router.message(StateFilter(SignUp.name))
+@router.message(StateFilter(SignUp.name), F.text != back_button)
 async def name_handler(msg: types.Message, state: FSMContext):
     '''Обработчик ввода имени'''
     name = msg.text
@@ -58,19 +58,19 @@ async def name_handler(msg: types.Message, state: FSMContext):
     await state.set_state(SignUp.phone)
 
 
-@router.message(StateFilter(SignUp.phone))
+@router.message(StateFilter(SignUp.phone), F.text != back_button)
 async def phone_handler(msg: types.Message, state: FSMContext):
     '''Обработчик ввода телефона'''
     phone = msg.contact.phone_number if msg.contact else msg.text
     if re.match(phone_pattern, phone):
         await state.update_data(phone=phone)
-        await msg.answer('Введите Ваш email', reply_markup=types.ReplyKeyboardRemove())
+        await msg.answer('Введите Ваш email', reply_markup=get_email_keyboard())
         await state.set_state(SignUp.email)
     else:
         await msg.answer('Неверный формат номера телефона. Попробуйте еще раз.')
 
 
-@router.message(StateFilter(SignUp.email))
+@router.message(StateFilter(SignUp.email), F.text != back_button)
 async def email_handler(msg: types.Message, state: FSMContext):
     '''Обработчик ввода email'''
     email = msg.text
@@ -96,7 +96,7 @@ async def email_handler(msg: types.Message, state: FSMContext):
         await msg.answer('Неверный формат email. Попробуйте еще раз.')
 
 
-@router.message(StateFilter(SignUp.verify_code))
+@router.message(StateFilter(SignUp.verify_code), F.text != back_button)
 async def verify_code_handler(msg: types.Message, state: FSMContext, promo_active: bool):
     '''Обработчик ввода проверочного кода'''
     data = await state.get_data()
@@ -123,6 +123,23 @@ async def verify_code_handler(msg: types.Message, state: FSMContext, promo_activ
         await state.clear()
     else:
         await msg.answer('Неверный проверочный код. Попробуйте еще раз.')
+
+
+@router.message(F.text == back_button, StateFilter(SignUp))
+async def back_button_handler(msg: types.Message, state: FSMContext):
+    '''Обработчик кнопки "Назад"'''
+    current_state = await state.get_state()
+    if current_state == 'SignUp:phone':
+        await msg.answer('Напишите Ваше имя или используйте, указанное в профиле телеграма.',
+                         reply_markup=get_name_keyboard(msg.from_user.full_name))
+        await state.set_state(SignUp.name)
+    elif current_state == 'SignUp:email':
+        await msg.answer('Введите номер телефона (11 цифр) без пробелов и дополнительных символов в формате: 89998889988',
+                         reply_markup=get_phone_keyboard())
+        await state.set_state(SignUp.phone)
+    elif current_state == 'SignUp:verify_code':
+        await msg.answer('Введите Ваш email', reply_markup=get_email_keyboard())
+        await state.set_state(SignUp.email)
 
 
 @router.message(StateFilter(SignUp.first_buttons), F.text == sign_in_button)

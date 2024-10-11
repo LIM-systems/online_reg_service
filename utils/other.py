@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 
 
 # проверка телефона на валидность
-phone_pattern = r'^(8|7)\d{10}$'
+phone_pattern = r'^(\+7|8|7)\d{10}$'
 
 # проверка email на валидность от пользователя
 email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$'
