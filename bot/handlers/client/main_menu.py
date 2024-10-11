@@ -10,7 +10,7 @@ from bot.db_reqs import client as db_client
 from bot.loader import router
 from bot.utils.keyboards.client import (cancel_client_keyboard, change_client_name_keyboard,
                                         client_cancel_name_button, client_main_menu_buttons, client_text_my_profile,
-                                        entries_client_buttons, loyality_programm_buttons, loyality_programm_keyboard,
+                                        entries_client_buttons, get_client_main_menu, loyality_programm_buttons, loyality_programm_keyboard,
                                         my_profile_buttons, my_profile_keyboard, select_entries_keyboard,
                                         send_message_to_manager_buttons, send_message_to_manager_keyboard, use_telegram_name_button)
 from bot.utils.states.StateClientProfile import ChatWithManager, ClientProfile, ListOfLoayalityProgramm
@@ -37,7 +37,7 @@ async def about_us(msg: types.Message, state: FSMContext):
         image_path = os.path.join(
             BASE_DIR, 'media', 'about_company', os.path.basename(image))
         photo = FSInputFile(image_path)
-        await msg.answer_photo(photo, caption=message)
+        await msg.answer_photo(photo, caption=message, reply_markup=get_client_main_menu(promo_active))
     else:
         await msg.answer(message)
 
