@@ -20,7 +20,8 @@ from utils.other import email_pattern, phone_pattern, send_verification_email
 
 ### О нас ###
 @router.message(F.text == client_main_menu_buttons[0])
-async def about_us(msg: types.Message, state: FSMContext):
+async def about_us(msg: types.Message, state: FSMContext
+                   ):
     '''Кнопка "О нас"'''
     await state.clear()
     about_us_info = await db_client.get_about_us_info()
