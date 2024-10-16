@@ -79,9 +79,4 @@ def check_roles(tg_id):
     master = base_mdls.Master.objects.filter(name=client).first()
     admin = base_mdls.Admin.objects.filter(name=client).first()
 
-    if master:
-        master = master.is_active_role
-    if admin:
-        admin = admin.is_active_role
-
     return master, admin

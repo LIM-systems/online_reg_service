@@ -29,10 +29,6 @@ def get_client_info(tg_id, name=None, phone=None, email=None):
     return client
 
 
-# @sync_to_async
-# def change_name(tg_id)
-
-
 @sync_to_async
 def get_future_entries(tg_id):
     '''Получить будущие записи клиента'''

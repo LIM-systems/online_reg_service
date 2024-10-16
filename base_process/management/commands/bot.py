@@ -6,9 +6,6 @@ from django.core.management.base import BaseCommand
 import bot.handlers
 from bot.db_reqs.common import check_promo_on_off, check_roles
 from bot.loader import bot, dp, router
-from bot.utils.keyboards.client import (client_cancel_name_button, client_main_menu_buttons,
-                                        entries_client_buttons, loyality_programm_buttons, my_profile_buttons,
-                                        send_message_to_manager_buttons)
 
 
 class Command(BaseCommand):
@@ -47,9 +44,10 @@ class Command(BaseCommand):
                 if tg_id:
                     try:
                         master, admin = await check_roles(tg_id)
-                        data['master'] = bool(master)
-                        data['admin'] = bool(admin)
-                        data['client'] = not (master or admin)
+                        data['admin'] = bool(admin and admin.is_active_role)
+                        data['master'] = bool(master and master.is_active_role)
+                        data['client'] = not (
+                            data['master'] or data['admin'])
                     except Exception as e:
                         print(f"Role check failed for user {tg_id}: {e}")
 
@@ -59,17 +57,14 @@ class Command(BaseCommand):
                 elif isinstance(event, types.CallbackQuery) and event.data:
                     action = event.data
 
-                # Define which buttons require which roles
-                client_buttons = (*client_main_menu_buttons,
-                                  *my_profile_buttons, client_cancel_name_button,
-                                  *entries_client_buttons, *loyality_programm_buttons,
-                                  *send_message_to_manager_buttons,)
                 master_buttons = ('fdsafas', 'dsafsadf')
+                admin_buttons = ('fdgs3',)
 
                 if action:
-                    if action in client_buttons and not data['client']:
+                    if data['client'] and action in master_buttons\
+                            or action in admin_buttons:
                         return
-                    elif action in master_buttons and not data['master']:
+                    if data['master'] and action in admin_buttons:
                         return
 
                 return await handler(event, data)

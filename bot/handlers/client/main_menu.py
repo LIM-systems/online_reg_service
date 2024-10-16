@@ -1,5 +1,4 @@
 import os
-import re
 
 from aiogram import F, types
 from aiogram.filters import StateFilter
@@ -8,20 +7,24 @@ from aiogram.types.input_file import FSInputFile
 
 from bot.db_reqs import client as db_client
 from bot.loader import router
-from bot.utils.keyboards.client import (cancel_client_keyboard, change_client_name_keyboard,
-                                        client_cancel_name_button, client_main_menu_buttons, client_text_my_profile,
-                                        entries_client_buttons, get_client_main_menu, loyality_programm_buttons, loyality_programm_keyboard,
-                                        my_profile_buttons, my_profile_keyboard, select_entries_keyboard,
-                                        send_message_to_manager_buttons, send_message_to_manager_keyboard, use_telegram_name_button)
-from bot.utils.states.StateClientProfile import ChatWithManager, ClientProfile, ListOfLoayalityProgramm
+from bot.utils.keyboards.client import (client_main_menu_buttons,
+                                        entries_client_buttons,
+                                        get_client_main_menu,
+                                        loyality_programm_buttons,
+                                        loyality_programm_keyboard,
+                                        loyality_programm_texts,
+                                        select_entries_keyboard,
+                                        send_message_to_manager_buttons,
+                                        send_message_to_manager_keyboard)
+from bot.utils.keyboards.common import my_profile_client_buttons
+from bot.utils.states.StateClientProfile import (ChatWithManager,
+                                                 ListOfLoayalityProgramm)
 from online_reg_bot.settings.base import BASE_DIR
-from utils.other import email_pattern, phone_pattern, send_verification_email
 
 
 ### О нас ###
 @router.message(F.text == client_main_menu_buttons[0])
-async def about_us(msg: types.Message, state: FSMContext
-                   ):
+async def about_us(msg: types.Message, state: FSMContext):
     '''Кнопка "О нас"'''
     await state.clear()
     about_us_info = await db_client.get_about_us_info()
@@ -38,113 +41,12 @@ async def about_us(msg: types.Message, state: FSMContext
         image_path = os.path.join(
             BASE_DIR, 'media', 'about_company', os.path.basename(image))
         photo = FSInputFile(image_path)
-        await msg.answer_photo(photo, caption=message, reply_markup=get_client_main_menu(promo_active))
+        await msg.answer_photo(photo, caption=message)
     else:
         await msg.answer(message)
 
 
-### Мой профиль ###
-@router.message(F.text == client_main_menu_buttons[2])
-async def my_profile(msg: types.Message, state: FSMContext):
-    '''Кнопка "Мой профиль"'''
-    await state.clear()
-    client_data = await db_client.get_client_info(msg.chat.id)
-    await msg.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-
-
-@router.callback_query(lambda call: call.data == my_profile_buttons[0])
-async def change_name(call: types.CallbackQuery, state: FSMContext):
-    '''Изменить имя'''
-    await call.message.delete()
-    await call.message.answer('Напишите Ваше имя или используйте, указанное в профиле телеграма.',
-                              reply_markup=change_client_name_keyboard(call.from_user.full_name))
-    await state.set_state(ClientProfile.name)
-
-
-@router.message(StateFilter(ClientProfile.name))
-async def text_name_handler(msg: types.Message, state: FSMContext):
-    '''Обработка написанного имени'''
-    await msg.answer('Имя было изменено')
-    client_data = await db_client.get_client_info(msg.chat.id, name=msg.text)
-    await msg.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-    await state.clear()
-
-
-@router.callback_query(lambda call: call.data == use_telegram_name_button, StateFilter(ClientProfile.name))
-async def button_name_handler(call: types.CallbackQuery, state: FSMContext):
-    '''Обработка кнопки выбора имени'''
-    await call.message.delete()
-    client_data = await db_client.get_client_info(call.message.chat.id, name=call.from_user.full_name)
-    await call.message.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-    await state.clear()
-
-
-@router.callback_query(lambda call: call.data == my_profile_buttons[1])
-async def change_phone(call: types.CallbackQuery, state: FSMContext):
-    '''Изменить телефон'''
-    await call.message.delete()
-    await call.message.answer('Введите номер телефона (11 цифр) без пробелов и дополнительных символов в формате: 89998889988',
-                              reply_markup=cancel_client_keyboard())
-    await state.set_state(ClientProfile.phone)
-
-
-@router.message(StateFilter(ClientProfile.phone))
-async def text_phone_handler(msg: types.Message, state: FSMContext):
-    '''Обработка написанного телефона'''
-    phone = msg.text
-    if re.match(phone_pattern, phone):
-        await msg.answer('Телефон был изменён')
-        client_data = await db_client.get_client_info(msg.chat.id, phone=msg.text)
-        await msg.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-        await state.clear()
-    else:
-        await msg.answer('Неверный формат номера телефона. Попробуйте еще раз.')
-
-
-@router.callback_query(lambda call: call.data == my_profile_buttons[2])
-async def change_email(call: types.CallbackQuery, state: FSMContext):
-    '''Изменить email'''
-    await call.message.delete()
-    await call.message.answer('Введите Ваш email',
-                              reply_markup=cancel_client_keyboard())
-    await state.set_state(ClientProfile.email)
-
-
-@router.message(StateFilter(ClientProfile.email))
-async def text_email_handler(msg: types.Message, state: FSMContext):
-    '''Обработка написанного email'''
-    email = msg.text
-    if re.match(email_pattern, email):
-
-        # отправка кода подтверждения
-        code = await send_verification_email(email)
-        await state.update_data(verify_code=code)
-
-        await state.update_data(email=email)
-        await msg.answer('Введите проверочный код, отправленный на Ваш email')
-        await state.set_state(ClientProfile.verify_code)
-    else:
-        await msg.answer('Неверный формат email. Попробуйте еще раз.')
-
-
-@router.message(StateFilter(ClientProfile.verify_code))
-async def verify_code_handler(msg: types.Message, state: FSMContext):
-    '''Обработчик ввода проверочного кода'''
-    data = await state.get_data()
-    verification_code = data.get('verify_code')
-
-    if msg.text == verification_code:
-        # все собранные данные клиента
-        email = data.get('email')
-        await msg.answer('Email был изменён')
-        client_data = await db_client.get_client_info(msg.chat.id, email=email)
-        await msg.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-        await state.clear()
-    else:
-        await msg.answer('Неверный проверочный код. Попробуйте еще раз.')
-
-
-@router.callback_query(lambda call: call.data == my_profile_buttons[3])
+@router.callback_query(lambda call: call.data == my_profile_client_buttons[3])
 async def select_entries_email(call: types.CallbackQuery):
     '''Выбрать записи'''
     await call.message.delete()
@@ -170,20 +72,13 @@ async def future_entries(call: types.CallbackQuery):
     await call.message.answer('У вас пока не было записей.')
 
 
-@router.callback_query(lambda call: call.data == client_cancel_name_button,
-                       StateFilter(ClientProfile))
-async def cancel_edit_client_profile(call: types.CallbackQuery, state: FSMContext):
-    '''Отмена редактирования профиля'''
-    await call.message.delete()
-    client_data = await db_client.get_client_info(call.message.chat.id)
-    await call.message.answer(client_text_my_profile(client_data), reply_markup=my_profile_keyboard())
-    await state.clear()
-
-
-# Программы лояльности ###
-@router.message(F.text == client_main_menu_buttons[3])
-async def loyality_programm(msg: types.Message):
+### Программы лояльности ###
+@router.message(F.text == client_main_menu_buttons[2])
+async def loyality_programm(msg: types.Message, promo_active: bool):
     '''Кнопка "Программы лояльности"'''
+    if not promo_active:
+        await msg.answer(loyality_programm_texts[0], reply_markup=get_client_main_menu(promo_active))
+        return
     loyality_programms = await db_client.get_loaylity_programs()
     await msg.answer('Выберите программу лояльности', reply_markup=loyality_programm_keyboard(loyality_programms))
 
@@ -294,12 +189,15 @@ async def loaylity_promos_handler(msg: types.Message, state: FSMContext):
         await msg.answer('Вы ввели неверный номер')
 
 
-### О нас ###
+### Чат с менеджером ###
 @router.message(F.text == client_main_menu_buttons[1])
-async def chat_with_manager(msg: types.Message, state: FSMContext):
-    '''Чат с менеджером"'''
+async def chat_with_manager(msg: types.Message, state: FSMContext, promo_active: bool):
+    '''Чат с менеджером'''
     await state.clear()
-    await msg.answer('Напишите сообщение')
+
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[[types.InlineKeyboardButton(
+        text='Отмена', callback_data=send_message_to_manager_buttons[1])]])
+    await msg.answer('Напишите сообщение', reply_markup=kb)
     await state.set_state(ChatWithManager.chat_with_manager)
 
 

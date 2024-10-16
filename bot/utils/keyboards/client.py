@@ -1,27 +1,17 @@
 from aiogram import types
-import certifi
-from django.template.defaulttags import ifchanged
+from bot.utils.keyboards.common import client_main_menu_buttons, my_profile_button
 
 
-# кнопки главного меню
-client_main_menu_buttons = ('👥 О нас', '👔 Чат с менеджером',
-                            '💎 Мой профиль', '📬 Программа лояльности', '📘 Записаться')
-
-
-messages_loyality_programm = (
-    'Программа лояльности стала доступна', 'На данный момент программы лояльности нет')
-
-
-def get_client_main_menu(toogle):
+def get_client_main_menu(toogle, role_buttons=None):
     '''Клавиатура главного меню клиента'''
     kb = [  # с программой лояльности
-        [types.KeyboardButton(text=client_main_menu_buttons[4])],
+        [types.KeyboardButton(text=client_main_menu_buttons[3])],
         [
-            types.KeyboardButton(text=client_main_menu_buttons[2]),
+            types.KeyboardButton(text=my_profile_button),
             types.KeyboardButton(text=client_main_menu_buttons[0])
         ],
         [
-            types.KeyboardButton(text=client_main_menu_buttons[3]),
+            types.KeyboardButton(text=client_main_menu_buttons[2]),
             types.KeyboardButton(text=client_main_menu_buttons[1])
         ]
     ]
@@ -29,14 +19,18 @@ def get_client_main_menu(toogle):
     if not toogle:
         kb = [  # без программы лояльности
             [
-                types.KeyboardButton(text=client_main_menu_buttons[4]),
-                types.KeyboardButton(text=client_main_menu_buttons[2])
+                types.KeyboardButton(text=client_main_menu_buttons[3]),
+                types.KeyboardButton(text=my_profile_button)
             ],
             [
                 types.KeyboardButton(text=client_main_menu_buttons[0]),
                 types.KeyboardButton(text=client_main_menu_buttons[1])
             ]
         ]
+
+    if role_buttons:  # кнопки переключения ролей
+        kb.append(role_buttons)
+
     keyboard = types.ReplyKeyboardMarkup(
         resize_keyboard=True,
         keyboard=kb
@@ -47,9 +41,9 @@ def get_client_main_menu(toogle):
 
 start_menu_text = f'''Вам доступны пункты меню:
 
-<b>{client_main_menu_buttons[2]}</b> – здесь можно изменить привязанный телефон и ФИО, посмотреть свои записи и историю записей;
+<b>{my_profile_button}</b> – здесь можно изменить привязанный телефон и ФИО, посмотреть свои записи и историю записей;
 
-<b>{client_main_menu_buttons[4]}</b> – здесь можно записаться на одну или несколько услуг;
+<b>{client_main_menu_buttons[3]}</b> – здесь можно записаться на одну или несколько услуг;
 
 <b>{client_main_menu_buttons[0]}</b> – здесь можно узнать о компании, посмотреть место и часы работы;
 
@@ -57,66 +51,7 @@ start_menu_text = f'''Вам доступны пункты меню:
 
 '''
 
-promo_menu_text = f'<b>{client_main_menu_buttons[3]}</b> – здесь можно приобрести абонемент и узнать о возможных акциях и скидках'
-
-
-# мой профиль
-my_profile_buttons = ('name_client_button', 'phone_client_button',
-                      'email_client_button', 'my_entries_client_button')
-
-
-def my_profile_keyboard():
-    '''Главная клавиатура клиента'''
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(
-            text='Имя', callback_data=my_profile_buttons[0]),
-            types.InlineKeyboardButton(
-            text='Телефон', callback_data=my_profile_buttons[1])],
-        [types.InlineKeyboardButton(
-            text='Email', callback_data=my_profile_buttons[2]),
-            types.InlineKeyboardButton(
-            text='Мои записи', callback_data=my_profile_buttons[3])],
-    ])
-    return keyboard
-
-
-def client_text_my_profile(client_data):
-
-    return f'''Мой профиль
-
-🔹Имя: {client_data.name}
-🔹Номер телефона: {client_data.phone}
-🔹Email: {client_data.email}
-
-Выберите данные, которые хотите изменить, или <i>"Мои записи"</i>, чтобы посмотреть журнал записей.
-'''
-
-
-# кнопка отмены
-client_cancel_name_button = 'client_cancel_button'
-client_cancel_button = types.InlineKeyboardButton(
-    text='Отмена', callback_data=client_cancel_name_button)
-
-# кнопка применения имени из телеграм профиля
-use_telegram_name_button = 'use_telegram_name_button'
-
-
-def change_client_name_keyboard(name):
-    '''Клавиатура изменение имени клиента'''
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(
-            text=name, callback_data=use_telegram_name_button)],
-        [client_cancel_button]
-    ])
-    return keyboard
-
-
-def cancel_client_keyboard():
-    '''Клавиатура изменение телефона клиента'''
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-        [client_cancel_button]
-    ])
-    return keyboard
+promo_menu_text = f'<b>{client_main_menu_buttons[2]}</b> – здесь можно приобрести абонемент и узнать о возможных акциях и скидках'
 
 
 # кнопки выбора записей
@@ -136,6 +71,9 @@ def select_entries_keyboard():
 
 # кнопки программы лояльности
 loyality_programm_buttons = ('promos', 'certificates', 'abonements')
+
+loyality_programm_texts = ('''Программа лояльности была отключена.''',
+                           '''Программа лояльности вновь доступна.''')
 
 
 def loyality_programm_keyboard(loyality_programms):

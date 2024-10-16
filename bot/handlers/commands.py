@@ -7,8 +7,10 @@ from aiogram.fsm.context import FSMContext
 from bot.db_reqs import common as db_common
 from bot.loader import router
 from bot.utils.keyboards.client import get_client_main_menu, start_menu_text, promo_menu_text
+from bot.utils.keyboards.common import get_role
 from bot.utils.keyboards.sign_up import (back_button, get_email_keyboard, get_name_keyboard,
                                          get_phone_keyboard, sign_in_button, sign_up_button, start_keyboard)
+from bot.utils.other.common import role_menu
 from bot.utils.states.StateSignUp import SignUp
 from utils.other import email_pattern, phone_pattern, send_verification_email
 
@@ -27,16 +29,9 @@ async def start_handler(msg: types.Message, state: FSMContext, promo_active: boo
         await msg.answer(greeting, reply_markup=start_keyboard())
         await state.set_state(SignUp.first_buttons)
     else:
-        # проверяем роли
-        master, admin = await db_common.check_roles(tg_id)
-
-        if admin:
-            await msg.answer('меню админа')
-        elif master:
-            await msg.answer('меню мастера')
-        else:
-            text = start_menu_text if not promo_active else start_menu_text + promo_menu_text
-            await msg.answer(text, reply_markup=get_client_main_menu(promo_active))
+        # показ меню в зависимости от роли
+        role = await get_role(tg_id)
+        await role_menu(msg=msg, role=role, promo_active=promo_active)
 
 
 @router.message(StateFilter(SignUp.first_buttons), F.text == sign_up_button)

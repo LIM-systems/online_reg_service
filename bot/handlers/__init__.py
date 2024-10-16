@@ -1,2 +1,1 @@
-from bot.handlers import commands
-from bot.handlers import client
+from bot.handlers import client, commands, common
