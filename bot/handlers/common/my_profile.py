@@ -5,11 +5,11 @@ from aiogram.fsm.context import FSMContext
 
 from bot.db_reqs import client as db_client
 from bot.loader import router
-from bot.utils.keyboards.client import (get_client_main_menu,
-                                        loyality_programm_texts)
+from bot.utils.keyboards.client import (entries_client_buttons, get_client_main_menu,
+                                        loyality_programm_texts, select_entries_keyboard)
 from bot.utils.keyboards.common import (cancel_client_keyboard, change_client_name_keyboard,
-                                        client_cancel_name_button, get_role, my_profile_button, my_profile_buttons,
-                                        my_profile_keyboard, text_my_profile, use_telegram_name_button)
+                                        client_cancel_name_button, get_roles, my_profile_button, my_profile_buttons,
+                                        my_profile_client_buttons, my_profile_keyboard, text_my_profile, use_telegram_name_button)
 from bot.utils.states.StateClientProfile import ClientProfile
 from utils.other import email_pattern, phone_pattern, send_verification_email
 
@@ -20,14 +20,15 @@ async def my_profile(msg: types.Message, state: FSMContext):
     '''Кнопка "Мой профиль"'''
     await state.clear()
 
-    role = await get_role(msg.from_user.id)
+    role = await get_roles(msg.from_user.id)
+    active_role = role.get('active')
     client_data = await db_client.get_client_info(msg.chat.id)
 
-    if role == 'client':
+    if active_role == 'client':
         # включение/отключение программы лояльности
         await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
-    if role == 'master':
-        await msg.answer(text_my_profile(client_data, role=role), reply_markup=my_profile_keyboard(role))
+    if active_role == 'master':
+        await msg.answer(text_my_profile(client_data, role=active_role), reply_markup=my_profile_keyboard(active_role))
 
 
 @router.callback_query(lambda call: call.data == my_profile_buttons[0])
@@ -44,7 +45,8 @@ async def text_name_handler(msg: types.Message, state: FSMContext):
     '''Обработка написанного имени'''
     await msg.answer('Имя было изменено')
     client_data = await db_client.get_client_info(msg.chat.id, name=msg.text)
-    await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
+    roles = await get_roles(msg.chat.id)
+    await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard(role=roles.get('active')))
     await state.clear()
 
 
@@ -53,7 +55,8 @@ async def button_name_handler(call: types.CallbackQuery, state: FSMContext):
     '''Обработка кнопки выбора имени'''
     await call.message.delete()
     client_data = await db_client.get_client_info(call.message.chat.id, name=call.from_user.full_name)
-    await call.message.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
+    roles = await get_roles(call.message.chat.id)
+    await call.message.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard(role=roles.get('active')))
     await state.clear()
 
 
@@ -73,7 +76,8 @@ async def text_phone_handler(msg: types.Message, state: FSMContext):
     if re.match(phone_pattern, phone):
         await msg.answer('Телефон был изменён')
         client_data = await db_client.get_client_info(msg.chat.id, phone=msg.text)
-        await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
+        roles = await get_roles(msg.chat.id)
+        await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard(role=roles.get('active')))
         await state.clear()
     else:
         await msg.answer('Неверный формат номера телефона. Попробуйте еще раз.')
@@ -116,7 +120,9 @@ async def verify_code_handler(msg: types.Message, state: FSMContext):
         email = data.get('email')
         await msg.answer('Email был изменён')
         client_data = await db_client.get_client_info(msg.chat.id, email=email)
-        await msg.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
+        roles = await get_roles(msg.chat.id)
+        await msg.answer(text_my_profile(client_data),
+                         reply_markup=my_profile_keyboard(role=roles.get('active')))
         await state.clear()
     else:
         await msg.answer('Неверный проверочный код. Попробуйте еще раз.')
@@ -128,5 +134,33 @@ async def cancel_edit_client_profile(call: types.CallbackQuery, state: FSMContex
     '''Отмена редактирования профиля'''
     await call.message.delete()
     client_data = await db_client.get_client_info(call.message.chat.id)
-    await call.message.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard())
+    roles = await get_roles(call.message.chat.id)
+    await call.message.answer(text_my_profile(client_data), reply_markup=my_profile_keyboard(role=roles.get('active')))
     await state.clear()
+
+
+# обработка кнопок клиента
+@router.callback_query(lambda call: call.data == my_profile_client_buttons[3])
+async def select_entries_email(call: types.CallbackQuery):
+    '''Выбрать записи'''
+    await call.message.delete()
+    await call.message.answer('Выберите записи',
+                              reply_markup=select_entries_keyboard())
+
+
+@router.callback_query(lambda call: call.data == entries_client_buttons[0])
+async def past_entries(call: types.CallbackQuery):
+    '''Отображение прошлых записей'''
+    await call.message.answer('У вас пока не было записей.')
+
+
+@router.callback_query(lambda call: call.data == entries_client_buttons[1])
+async def future_entries(call: types.CallbackQuery):
+    '''Отображение будущих записей'''
+    await call.message.answer('У вас пока не было записей.')
+
+
+@router.callback_query(lambda call: call.data == entries_client_buttons[1])
+async def future_entries(call: types.CallbackQuery):
+    '''Отображение будущих записей'''
+    await call.message.answer('У вас пока не было записей.')

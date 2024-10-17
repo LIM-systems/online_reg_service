@@ -80,3 +80,35 @@ def check_roles(tg_id):
     admin = base_mdls.Admin.objects.filter(name=client).first()
 
     return master, admin
+
+
+@sync_to_async
+def toggle_role(tg_id, selected_role):
+    '''Переключение роли'''
+    client = base_mdls.Client.objects.filter(tg_id=tg_id).first()
+    master = base_mdls.Master.objects.filter(name=client).first()
+    admin = base_mdls.Admin.objects.filter(name=client).first()
+
+    if selected_role == 'client':
+        if master:
+            master.is_active_role = False
+            master.save()
+        if admin:
+            admin.is_active_role = False
+            admin.save()
+
+    if selected_role == 'master':
+        if master:
+            master.is_active_role = True
+            master.save()
+        if admin:
+            admin.is_active_role = False
+            admin.save()
+
+    if selected_role == 'admin':
+        if master:
+            master.is_active_role = False
+            master.save()
+        if admin:
+            admin.is_active_role = True
+            admin.save()

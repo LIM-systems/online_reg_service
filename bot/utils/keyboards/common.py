@@ -87,14 +87,24 @@ toggle_role_buttons = ('Меню клиента',
                        'Меню мастера', 'Меню админа')
 
 
-async def get_role(tg_id):
-    '''Получить роль'''
+async def get_roles(tg_id):
+    '''Получить роли'''
 
-    master, admin = await db_common.check_roles(tg_id)
+    db_roles = await db_common.check_roles(tg_id)
+    roles = [role for role in db_roles]
+    master, admin = roles
     role = 'client'
     if admin and admin.is_active_role:
         role = 'admin'
     elif master and master.is_active_role:
         role = 'master'
 
-    return role
+    roles = {
+        'active': role,
+        'exists': {
+            'master': master,
+            'admin': admin
+        }
+    }
+
+    return roles

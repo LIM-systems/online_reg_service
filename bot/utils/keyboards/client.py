@@ -29,7 +29,10 @@ def get_client_main_menu(toogle, role_buttons=None):
         ]
 
     if role_buttons:  # кнопки переключения ролей
-        kb.append(role_buttons)
+        buttons = []
+        for button in role_buttons:
+            buttons.append(types.KeyboardButton(text=button))
+        kb.append(buttons)
 
     keyboard = types.ReplyKeyboardMarkup(
         resize_keyboard=True,
