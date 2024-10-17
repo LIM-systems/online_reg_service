@@ -17,7 +17,7 @@ def get_master_main_menu(admin_button=None):
 
     keyboard = types.ReplyKeyboardMarkup(
         resize_keyboard=True,
-        keyboard=kb
+        keyboard=kb,
     )
 
     return keyboard
@@ -34,3 +34,16 @@ start_menu_text_master = f'''Вам доступны пункты меню:
 <b>{toggle_role_buttons[0]}</b> – переключится на меню клиента;
 
 '''
+
+master_ratings_buttons = ('last_work_day_button', 'date_ratings_button')
+
+
+def get_master_ratings_keyboard():
+    '''Клавиатура оценок мастера'''
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(
+            text='Выбрать дату', callback_data=master_ratings_buttons[1]),
+            types.InlineKeyboardButton(
+                text='Предыдущий рабочий день', callback_data=master_ratings_buttons[0]),],
+    ])
+    return keyboard

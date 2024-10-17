@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 import bot.handlers
 from bot.db_reqs.common import check_promo_on_off, check_roles
 from bot.loader import bot, dp, router
+from bot.utils.keyboards.master import master_ratings_buttons
 
 
 class Command(BaseCommand):
@@ -57,7 +58,7 @@ class Command(BaseCommand):
                 elif isinstance(event, types.CallbackQuery) and event.data:
                     action = event.data
 
-                master_buttons = ('fdsafas', 'dsafsadf')
+                master_buttons = (*master_ratings_buttons,)
                 admin_buttons = ('fdgs3',)
 
                 if action:

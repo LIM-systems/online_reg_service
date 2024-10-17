@@ -40,4 +40,5 @@ async def role_menu(**kwargs):
         await msg.answer(start_menu_text_master, reply_markup=kb)
 
     if active_role == 'admin':
+        # если активна роль мастера
         await msg.answer(start_menu_text_admin, reply_markup=get_admin_main_menu())
