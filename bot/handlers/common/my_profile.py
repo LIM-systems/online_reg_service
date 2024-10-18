@@ -151,16 +151,12 @@ async def select_entries_email(call: types.CallbackQuery):
 @router.callback_query(lambda call: call.data == entries_client_buttons[0])
 async def past_entries(call: types.CallbackQuery):
     '''Отображение прошлых записей'''
+    await call.message.delete()
     await call.message.answer('У вас пока не было записей.')
 
 
 @router.callback_query(lambda call: call.data == entries_client_buttons[1])
 async def future_entries(call: types.CallbackQuery):
     '''Отображение будущих записей'''
-    await call.message.answer('У вас пока не было записей.')
-
-
-@router.callback_query(lambda call: call.data == entries_client_buttons[1])
-async def future_entries(call: types.CallbackQuery):
-    '''Отображение будущих записей'''
+    await call.message.delete()
     await call.message.answer('У вас пока не было записей.')

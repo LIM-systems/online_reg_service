@@ -9,10 +9,10 @@ client_main_menu_buttons = ('👥 О нас', '👔 Чат с менеджеро
                             '📬 Программа лояльности', '📘 Записаться')
 
 # мастер
-master_main_menu_buttons = ('📘 Мой график', '📫Мои оценки',)
+master_main_menu_buttons = ('📘 Мой график', '📫 Мои оценки',)
 
 # админ
-admin_main_menu_buttons = ('Рассылка', 'Админка',)
+admin_main_menu_buttons = ('📤 Рассылка', '🌐 Админка',)
 
 
 # мой профиль
@@ -83,8 +83,8 @@ def cancel_client_keyboard():
 
 
 # переключение ролей
-toggle_role_buttons = ('💁🏻‍♂️Меню клиента',
-                       'Меню мастера', 'Меню админа')
+toggle_role_buttons = ('💁🏻‍♂️ Меню клиента',
+                       '🙆🏻‍♂️ Меню мастера', '🙍🏻‍♂️ Меню админа')
 
 
 async def get_roles(tg_id):

@@ -7,6 +7,8 @@ import bot.handlers
 from bot.db_reqs.common import check_promo_on_off, check_roles
 from bot.loader import bot, dp, router
 from bot.utils.keyboards.master import master_ratings_buttons
+from bot.utils.keyboards.common import admin_main_menu_buttons, master_main_menu_buttons
+from bot.utils.keyboards.admin import broadcast_buttons
 
 
 class Command(BaseCommand):
@@ -58,8 +60,9 @@ class Command(BaseCommand):
                 elif isinstance(event, types.CallbackQuery) and event.data:
                     action = event.data
 
-                master_buttons = (*master_ratings_buttons,)
-                admin_buttons = ('fdgs3',)
+                master_buttons = (*master_ratings_buttons,
+                                  *master_main_menu_buttons)
+                admin_buttons = (*admin_main_menu_buttons, *broadcast_buttons)
 
                 if action:
                     if data['client'] and action in master_buttons\
