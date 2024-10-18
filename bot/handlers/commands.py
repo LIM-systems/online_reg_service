@@ -112,9 +112,9 @@ async def verify_code_handler(msg: types.Message, state: FSMContext, promo_activ
             # записываем в бд
             await db_common.sign_up(tg_id, name, phone, email)
 
-        # отображение меню клиента после регистрации
-        text = start_menu_text if not promo_active else start_menu_text + promo_menu_text
-        await msg.answer(text, reply_markup=get_client_main_menu(promo_active))
+        # показ меню в зависимости от роли
+        roles = await get_roles(tg_id)
+        await role_menu(msg=msg, roles=roles, promo_active=promo_active)
         await state.clear()
     else:
         await msg.answer('Неверный проверочный код. Попробуйте еще раз.')

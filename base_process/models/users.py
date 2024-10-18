@@ -71,7 +71,7 @@ class Master(models.Model):
     photo = models.ImageField(
         upload_to='masters/',
         verbose_name='Фото мастера', default='masters/default.png')
-    is_active_role = models.BooleanField(default=True)
+    is_active_role = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Мастер'
@@ -85,7 +85,7 @@ class Admin(models.Model):
     '''Администраторы'''
     name = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name='Назначить администратора')
-    is_active_role = models.BooleanField(default=True)
+    is_active_role = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Администратор'
