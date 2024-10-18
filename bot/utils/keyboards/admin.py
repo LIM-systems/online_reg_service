@@ -5,7 +5,7 @@ from bot.utils.keyboards.common import (admin_main_menu_buttons,
 
 
 def get_admin_main_menu():
-    '''Клавиатура главного меню мастера'''
+    '''Клавиатура главного меню админа'''
     kb = [
         [types.KeyboardButton(text=admin_main_menu_buttons[0]),
          types.KeyboardButton(text=admin_main_menu_buttons[1])],
@@ -32,3 +32,24 @@ start_menu_text_admin = f'''Вам доступны пункты меню:
 <b>{toggle_role_buttons[1]}</b> – переключится на меню мастера;
 
 '''
+
+
+# рассылка
+broadcast_buttons = ('send_broadcast_msg_button',
+                     'cancel_broadcast_msg_button')
+
+
+def get_broadcast_keyboard(only_cancel=False):
+    '''Клавиатура рассылки'''
+    kb = [[types.InlineKeyboardButton(
+        text='Отменить', callback_data=broadcast_buttons[1])]
+    ]
+
+    if not only_cancel:
+        kb.insert(0, [types.InlineKeyboardButton(
+            text='Отправить', callback_data=broadcast_buttons[0])])
+
+    keyboard = types.InlineKeyboardMarkup(
+        inline_keyboard=kb
+    )
+    return keyboard
