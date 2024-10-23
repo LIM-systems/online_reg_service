@@ -5,9 +5,11 @@ from bot.utils.keyboards.common import (master_main_menu_buttons, my_profile_but
 
 def get_master_main_menu(admin_button=None):
     '''Клавиатура главного меню мастера'''
+    webapp_button = types.KeyboardButton(text=master_main_menu_buttons[0],
+                                         web_app=types.WebAppInfo(url='https://lim.systems/uploads/journal.png'))
     kb = [
         [types.KeyboardButton(text=my_profile_button),
-         types.KeyboardButton(text=master_main_menu_buttons[0])],
+         webapp_button],
         [types.KeyboardButton(text=master_main_menu_buttons[1]),
          types.KeyboardButton(text=toggle_role_buttons[0])],
     ]

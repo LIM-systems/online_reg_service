@@ -4,8 +4,10 @@ from bot.utils.keyboards.common import client_main_menu_buttons, my_profile_butt
 
 def get_client_main_menu(toogle, role_buttons=None):
     '''Клавиатура главного меню клиента'''
+    webapp_button = types.KeyboardButton(text=client_main_menu_buttons[3],
+                                         web_app=types.WebAppInfo(url='https://lim.systems/uploads/sign_up.png'))
     kb = [  # с программой лояльности
-        [types.KeyboardButton(text=client_main_menu_buttons[3])],
+        [webapp_button],
         [
             types.KeyboardButton(text=my_profile_button),
             types.KeyboardButton(text=client_main_menu_buttons[0])
@@ -19,7 +21,7 @@ def get_client_main_menu(toogle, role_buttons=None):
     if not toogle:
         kb = [  # без программы лояльности
             [
-                types.KeyboardButton(text=client_main_menu_buttons[3]),
+                webapp_button,
                 types.KeyboardButton(text=my_profile_button)
             ],
             [
